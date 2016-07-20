@@ -81,52 +81,9 @@ public class DefaultTokenServices implements AuthorizationServerTokenServices, R
 	@Transactional
 	public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) throws AuthenticationException {
 
-		OAuth2AccessToken existingAccessToken = tokenStore.getAccessToken(authentication);
-		OAuth2RefreshToken refreshToken = null;
-		if (existingAccessToken != null) {
-			if (existingAccessToken.isExpired()) {
-				if (existingAccessToken.getRefreshToken() != null) {
-					refreshToken = existingAccessToken.getRefreshToken();
-					// The token store could remove the refresh token when the
-					// access token is removed, but we want to
-					// be sure...
-					tokenStore.removeRefreshToken(refreshToken);
-				}
-				tokenStore.removeAccessToken(existingAccessToken);
-			}
-			else {
-				// Re-store the access token in case the authentication has changed
-				tokenStore.storeAccessToken(existingAccessToken, authentication);
-				return existingAccessToken;
-			}
-		}
-
-		// Only create a new refresh token if there wasn't an existing one
-		// associated with an expired access token.
-		// Clients might be holding existing refresh tokens, so we re-use it in
-		// the case that the old access token
-		// expired.
-		if (refreshToken == null) {
-			refreshToken = createRefreshToken(authentication);
-		}
-		// But the refresh token itself might need to be re-issued if it has
-		// expired.
-		else if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
-			ExpiringOAuth2RefreshToken expiring = (ExpiringOAuth2RefreshToken) refreshToken;
-			if (System.currentTimeMillis() > expiring.getExpiration().getTime()) {
-				refreshToken = createRefreshToken(authentication);
-			}
-		}
-
-		OAuth2AccessToken accessToken = createAccessToken(authentication, refreshToken);
-		tokenStore.storeAccessToken(accessToken, authentication);
-		// In case it was modified
-		refreshToken = accessToken.getRefreshToken();
-		if (refreshToken != null) {
-			tokenStore.storeRefreshToken(refreshToken, authentication);
-		}
-		return accessToken;
-
+	    OAuth2AccessToken accessToken = createAccessToken(authentication, createRefreshToken(authentication));
+	    tokenStore.storeAccessToken(accessToken, authentication);
+	    return accessToken;
 	}
 
 	@Transactional(noRollbackFor={InvalidTokenException.class, InvalidGrantException.class})
