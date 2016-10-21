@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
@@ -426,12 +427,12 @@ public class AuthorizationEndpoint extends AbstractEndpoint {
 				if (keys != null && keys.containsKey(key)) {
 					name = keys.get(key);
 				}
-				values.append(name + "={" + key + "}");
+				values.append(name + "=" + Objects.toString(query.get(key), ""));
 			}
 			if (values.length() > 0) {
 				template.fragment(values.toString());
 			}
-			UriComponents encoded = template.build().expand(query).encode();
+			UriComponents encoded = template.build().encode();
 			builder.fragment(encoded.getFragment());
 		}
 		else {
@@ -440,10 +441,10 @@ public class AuthorizationEndpoint extends AbstractEndpoint {
 				if (keys != null && keys.containsKey(key)) {
 					name = keys.get(key);
 				}
-				template.queryParam(name, "{" + key + "}");
+				template.queryParam(name, Objects.toString(query.get(key), ""));
 			}
 			template.fragment(redirectUri.getFragment());
-			UriComponents encoded = template.build().expand(query).encode();
+			UriComponents encoded = template.build().encode();
 			builder.query(encoded.getQuery());
 		}
 
