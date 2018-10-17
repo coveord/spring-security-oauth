@@ -15,14 +15,14 @@ package demo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ContextConfiguration;
 
 import sparklr.common.AbstractAuthorizationCodeProviderTests;
 
 /**
  * @author Dave Syer
  */
-@SpringApplicationConfiguration(classes = Application.class)
+@ContextConfiguration(classes=Application.class)
 public class AuthorizationCodeProviderTests extends AbstractAuthorizationCodeProviderTests {
 
 	protected String getPassword() {
@@ -34,8 +34,8 @@ public class AuthorizationCodeProviderTests extends AbstractAuthorizationCodePro
 	}
 
 	protected void verifyAuthorizationPage(String page) {
-		assertTrue(page.contains("action='/oauth/authorize'"));
-		assertTrue(page.contains("<input name='user_oauth_approval'"));
-		assertFalse(page.contains("type='radio")); // no approval store
+		assertTrue(page.contains("action=\"/oauth/authorize\""));
+		assertTrue(page.contains("<input name=\"user_oauth_approval\""));
+		assertFalse(page.contains("type=\"radio")); // no approval store
 	}
 }

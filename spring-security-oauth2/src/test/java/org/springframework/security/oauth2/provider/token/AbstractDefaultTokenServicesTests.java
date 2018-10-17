@@ -111,36 +111,6 @@ public abstract class AbstractDefaultTokenServicesTests {
 	}
 
 	@Test
-	public void testRefreshedTokenHasNarrowedScopes() throws Exception {
-		ExpiringOAuth2RefreshToken expectedExpiringRefreshToken = (ExpiringOAuth2RefreshToken) getTokenServices()
-				.createAccessToken(createAuthentication()).getRefreshToken();
-		TokenRequest tokenRequest = new TokenRequest(Collections.singletonMap("client_id", "id"), "id",
-				Collections.singleton("read"), null);
-		OAuth2AccessToken refreshedAccessToken = getTokenServices()
-				.refreshAccessToken(expectedExpiringRefreshToken.getValue(), tokenRequest);
-		assertEquals("[read]", refreshedAccessToken.getScope().toString());
-	}
-
-	@Test
-	public void testRefreshTokenRequestHasRefreshFlag() throws Exception {
-		ExpiringOAuth2RefreshToken expectedExpiringRefreshToken = (ExpiringOAuth2RefreshToken) getTokenServices()
-				.createAccessToken(createAuthentication()).getRefreshToken();
-		TokenRequest tokenRequest = new TokenRequest(Collections.singletonMap("client_id", "id"), "id",
-				Collections.singleton("read"), null);
-		final AtomicBoolean called = new AtomicBoolean(false);
-		getTokenServices().setTokenEnhancer(new TokenEnhancer() {
-			@Override
-			public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
-				assertTrue(authentication.getOAuth2Request().isRefresh());
-				called.set(true);
-				return accessToken;
-			}
-		});
-		getTokenServices().refreshAccessToken(expectedExpiringRefreshToken.getValue(), tokenRequest);
-		assertTrue(called.get());
-	}
-
-	@Test
 	public void testRefreshTokenNonExpiring() throws Exception {
 		ClientDetailsService clientDetailsService = new InMemoryClientDetailsServiceBuilder().withClient("id")
 				.refreshTokenValiditySeconds(0).authorizedGrantTypes("refresh_token").and().build();
@@ -187,16 +157,6 @@ public abstract class AbstractDefaultTokenServicesTests {
 		});
 		OAuth2AccessToken accessToken = getTokenServices().createAccessToken(createAuthentication());
 		assertTrue(100 >= accessToken.getExpiresIn());
-	}
-
-	@Test
-	public void testRefreshedTokenHasScopes() throws Exception {
-		ExpiringOAuth2RefreshToken expectedExpiringRefreshToken = (ExpiringOAuth2RefreshToken) getTokenServices()
-				.createAccessToken(createAuthentication()).getRefreshToken();
-		TokenRequest tokenRequest = new TokenRequest(Collections.singletonMap("client_id", "id"), "id", null, null);
-		OAuth2AccessToken refreshedAccessToken = getTokenServices()
-				.refreshAccessToken(expectedExpiringRefreshToken.getValue(), tokenRequest);
-		assertEquals("[read, write]", refreshedAccessToken.getScope().toString());
 	}
 
 	@Test

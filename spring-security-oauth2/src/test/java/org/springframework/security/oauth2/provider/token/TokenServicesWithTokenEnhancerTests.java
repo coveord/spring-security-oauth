@@ -121,28 +121,6 @@ public class TokenServicesWithTokenEnhancerTests {
 		assertEquals("bar", tokenServices.readAccessToken(token.getValue()).getAdditionalInformation().get("foo"));
 	}
 
-	// gh-511
-	@Test
-	public void storeEnhancedRefreshTokenDuringRefresh() {
-		InMemoryTokenStore tokenStore = new InMemoryTokenStore();
-
-		tokenServices.setSupportRefreshToken(true);
-		tokenServices.setReuseRefreshToken(false);
-		tokenServices.setTokenStore(tokenStore);
-
-		OAuth2AccessToken accessToken = tokenServices.createAccessToken(authentication);
-		OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
-
-		TokenRequest tokenRequest = new TokenRequest(Collections.<String, String>emptyMap(),
-				request.getClientId(), request.getScope(), "authorization_code");
-
-		accessToken = tokenServices.refreshAccessToken(refreshToken.getValue(), tokenRequest);
-		OAuth2RefreshToken enhancedRefreshToken = accessToken.getRefreshToken();
-		OAuth2RefreshToken storedEnhancedRefreshToken = tokenStore.readRefreshToken(enhancedRefreshToken.getValue());
-
-		assertEquals(enhancedRefreshToken.getValue(), storedEnhancedRefreshToken.getValue());
-	}
-
 	@SuppressWarnings("serial")
 	protected static class FooAuthentication extends AbstractAuthenticationToken {
 
