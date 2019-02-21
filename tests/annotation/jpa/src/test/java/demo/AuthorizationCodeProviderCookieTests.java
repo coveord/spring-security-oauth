@@ -29,9 +29,9 @@ import sparklr.common.AbstractEmptyAuthorizationCodeProviderTests;
 public class AuthorizationCodeProviderCookieTests extends AbstractEmptyAuthorizationCodeProviderTests {
 
 	@Test
-	@OAuth2ContextConfiguration(resource = MyTrustedClient.class, initialize = false)
+	@OAuth2ContextConfiguration(resource = MyClientWithRegisteredRedirect.class, initialize = false)
 	public void testPostToProtectedResource() throws Exception {
-		approveAccessTokenGrant("http://anywhere", true);
+		approveAccessTokenGrant("http://anywhere?key=value", true);
 		assertNotNull(context.getAccessToken());
 		LinkedMultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.set("foo", "bar");
